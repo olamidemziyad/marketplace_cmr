@@ -1,0 +1,1 @@
+Le fichier testEmailQueue.js est la pour forcer un job enfin de savoir si tout fonctionne bien là
