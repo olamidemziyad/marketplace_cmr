@@ -1,3 +1,5 @@
+const { Sequelize } = require("sequelize");
+
 const sequelize = process.env.DATABASE_URL
   ? new Sequelize(process.env.DATABASE_URL, {
       dialect: "mysql",
@@ -14,3 +16,5 @@ const sequelize = process.env.DATABASE_URL
         logging: false,
       }
     );
+
+module.exports = sequelize;
