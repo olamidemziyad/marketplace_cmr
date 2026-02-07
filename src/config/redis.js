@@ -1,13 +1,15 @@
 const IORedis = require("ioredis");
 
-let redisConnection = null;
+let redisConnection;
 
 if (process.env.REDIS_URL) {
-  // Render / Production
-  redisConnection = new IORedis(process.env.REDIS_URL);
-  console.log("Redis connecté via REDIS_URL");
+  // Production (Railway, Render, etc.)
+  redisConnection = new IORedis(process.env.REDIS_URL, {
+    maxRetriesPerRequest: null,
+  });
+  console.log("Redis connecté via REDIS_URL (prod)");
 } else {
-  // Local (Docker / machine)
+  // Local
   redisConnection = new IORedis({
     host: "127.0.0.1",
     port: 6379,
