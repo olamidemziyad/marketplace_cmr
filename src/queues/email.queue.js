@@ -3,70 +3,76 @@
 const { Queue } = require('bullmq');
 const redis = require('../config/redis');
 
+console.log(' Initialisation de la email queue...');
 
-// Créer la queue
-const emailQueue = new Queue('emailQueue', {
-  connection: redis,
-  defaultJobOptions: {
-    attempts: 3, // Nombre de tentatives en cas d'échec
-    backoff: {
-      type: 'exponential',
-      delay: 2000 // Délai entre tentatives (ms)
+/* ------------------------- QUEUE (PROTÉGÉE) ------------------------- */
+
+let emailQueue = null;
+
+if (redis) {
+  emailQueue = new Queue('emailQueue', {
+    connection: redis,
+    defaultJobOptions: {
+      attempts: 3,
+      backoff: {
+        type: 'exponential',
+        delay: 2000,
+      },
+      removeOnComplete: {
+        age: 3600,
+        count: 100,
+      },
+      removeOnFail: {
+        age: 86400,
+      },
     },
-    removeOnComplete: {
-      age: 3600, // Garder les jobs complétés pendant 1 heure
-      count: 100  // Garder max 100 jobs complétés
-    },
-    removeOnFail: {
-      age: 86400  // Garder les jobs échoués pendant 24h
-    }
+  });
+
+  console.log(' Email queue connectée à Redis');
+} else {
+  console.log(' Redis indisponible — Email queue désactivée');
+}
+
+/* ------------------------- HELPERS ------------------------- */
+
+const safeAddJob = async (name, data) => {
+  if (!emailQueue) {
+    console.warn(`Impossible d’ajouter le job "${name}" : Redis indisponible`);
+    return null;
   }
-});
-
-/**
- * Helper : Ajouter un job email de paiement réussi
- */
-const sendPaymentSuccessEmail = async (data) => {
-  return await emailQueue.add('paymentSuccess', data);
+  return await emailQueue.add(name, data);
 };
 
-/**
- * Helper : Ajouter un job email de paiement échoué
- */
-const sendPaymentFailedEmail = async (data) => {
-  return await emailQueue.add('paymentFailed', data);
+const sendPaymentSuccessEmail = async (data) =>
+  safeAddJob('paymentSuccess', data);
+
+const sendPaymentFailedEmail = async (data) =>
+  safeAddJob('paymentFailed', data);
+
+const sendNewOrderPaidEmail = async (data) =>
+  safeAddJob('newOrderPaid', data);
+
+const sendOrderPaidEmail = async (data) =>
+  safeAddJob('orderPaid', data);
+
+const sendNotificationEmail = async (data) =>
+  safeAddJob('notificationEmail', data);
+
+/* ------------------------- EVENTS ------------------------- */
+
+if (emailQueue) {
+  emailQueue.on('error', (error) => {
+    console.error(' Email queue error:', error);
+  });
+}
+
+/* ------------------------- EXPORTS ------------------------- */
+
+module.exports = {
+  emailQueue,
+  sendPaymentSuccessEmail,
+  sendPaymentFailedEmail,
+  sendNewOrderPaidEmail,
+  sendOrderPaidEmail,
+  sendNotificationEmail,
 };
-
-/**
- * Helper : Ajouter un job email de nouvelle commande (vendeur)
- */
-const sendNewOrderPaidEmail = async (data) => {
-  return await emailQueue.add('newOrderPaid', data);
-};
-
-/**
- * Helper : Ajouter un job email générique
- * Pour compatibilité avec l'ancien code Stripe
- */
-const sendOrderPaidEmail = async (data) => {
-  return await emailQueue.add('orderPaid', data);
-};
-
-/**
- * Événements de la queue
- */
-emailQueue.on('error', (error) => {
-  console.error('❌ Queue error:', error);
-});
-
-const sendNotificationEmail = async (data) => {
-  return await emailQueue.add('notificationEmail', data);
-};
-
-// Exports
-module.exports = emailQueue;
-module.exports.sendPaymentSuccessEmail = sendPaymentSuccessEmail;
-module.exports.sendPaymentFailedEmail = sendPaymentFailedEmail;
-module.exports.sendNewOrderPaidEmail = sendNewOrderPaidEmail;
-module.exports.sendOrderPaidEmail = sendOrderPaidEmail;
-module.exports.sendNotificationEmail = sendNotificationEmail;
