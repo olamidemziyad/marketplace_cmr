@@ -4,7 +4,7 @@ const app = require("./app");
 const db = require("./models"); // contient sequelize et tous les modèles
 
 // Synchroniser UNIQUEMENT le modèle CartItem
-const { CartItem } = require('./models');
+//const { CartItem } = require('./models');
 
 
 
