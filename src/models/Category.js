@@ -69,7 +69,7 @@ module.exports = (sequelize) => {
       allowNull: false
     }
   }, {
-    tableName: 'Categories',
+    tableName: 'categories',
     timestamps: true,
     indexes: [
       { fields: ['slug'] },

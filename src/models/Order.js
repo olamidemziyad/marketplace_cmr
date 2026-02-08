@@ -24,10 +24,10 @@ module.exports = (sequelize) => {
     buyerId: {
       type: DataTypes.UUID,
       allowNull: false,
-      references: {
-        model: 'Users',
-        key: 'id'
-      },
+      // references: {
+      //   model: 'Users',
+      //   key: 'id'
+      // },
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE'
     },
@@ -36,10 +36,10 @@ module.exports = (sequelize) => {
     sellerId: {
       type: DataTypes.UUID,
       allowNull: false,
-      references: {
-        model: 'Users',  // ✅ Changé ici
-        key: 'id'
-      },
+      // references: {
+      //   model: 'Users',  // ✅ Changé ici
+      //   key: 'id'
+      // },
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE',
       comment: 'Référence l\'utilisateur vendeur'
@@ -48,10 +48,10 @@ module.exports = (sequelize) => {
     addressId: {
       type: DataTypes.UUID,
       allowNull: true,
-      references: {
-        model: 'Addresses',
-        key: 'id'
-      },
+      // references: {
+      //   model: 'Addresses',
+      //   key: 'id'
+      // },
       onDelete: 'SET NULL',
       onUpdate: 'CASCADE'
     },
@@ -80,10 +80,10 @@ module.exports = (sequelize) => {
     paymentId: {
       type: DataTypes.UUID,
       allowNull: true,
-      references: {
+      /* references: {
         model: 'Payments',
         key: 'id'
-      },
+      }, */
       onDelete: 'SET NULL',
       onUpdate: 'CASCADE',
       comment: 'Référence vers la table Payments (Mobile Money)'
@@ -146,7 +146,7 @@ module.exports = (sequelize) => {
       allowNull: true
     }
   }, {
-    tableName: 'Orders',
+    tableName: 'orders',
     timestamps: true,
     indexes: [
       { fields: ['orderNumber'] },

@@ -62,7 +62,7 @@ module.exports = (sequelize, DataTypes) => {
     }
 
   }, {
-    tableName: 'CartItems',
+    tableName: 'cart_items',
     timestamps: true,
     indexes: [
       { fields: ['cartId'] },

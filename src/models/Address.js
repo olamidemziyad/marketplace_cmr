@@ -115,7 +115,7 @@ module.exports = (sequelize) => {
       allowNull: true
     }
   }, {
-    tableName: 'Addresses',
+    tableName: 'addresses',
     timestamps: true,
     indexes: [
       { fields: ['userId'] },
